@@ -7,50 +7,50 @@
 
 import SwiftUI
 
-struct TasksView: View {
+struct TaskView: View {
     
-    @EnvironmentObject var vm: MainViewModel
+    @ObservedObject var taskViewModel: TaskViewModel
     
-    var body: some View {
-        VStack{
-        ForEach(vm.tasks) { task in
-            taskView(task: task)
-                .padding(.bottom)
-            }
-        }
+    init(task: Task, user: User?) {
+        self.taskViewModel = .init(task: task, user: user)
+//        _taskViewModel = StateObject(wrappedValue: TaskViewModel(task: task, user: user))
     }
     
-    private func taskView(task: Task) -> some View {
+    var body: some View {
+        taskView
+
+    }
+    
+    private var taskView: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 10)
                 .foregroundColor(.primary.opacity(0.25))
-            if vm.isMyTask(task: task)
+            if taskViewModel.isMyTask
             {
-            ownerView
+                ownerView
             }
-//                    .opacity(vm.isMyTask(task: task) ? 1 : 0)
             else {
-            joinedView(task: task)
+                joinedView
                     .onTapGesture {
                         print("tap here")
-                        vm.handleJoin(task: task)
+                        taskViewModel.handleJoin()
                     }
             }
             VStack(alignment: .leading) {
-            Text(task.text)
+                Text(taskViewModel.task.text)
                 .padding(.top,10)
                 .padding()
             HStack {
-                joinersView(task: task)
+                joinersView
                 Spacer()
-                taskTypeView(type: task.type)
+                taskTypeView(type: taskViewModel.task.type)
             }
             .padding()
             }
         }
         .frame(minHeight: 100)
     }
-    
+
     private var ownerView: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 5).foregroundColor(.gray)
@@ -60,24 +60,24 @@ struct TasksView: View {
         .frame(width: 70, height: 30)
         .position(x: 50, y: -2)
     }
-    
-    private func joinedView(task: Task) -> some View {
+
+    private var joinedView: some View {
         HStack {
         Spacer()
         ZStack {
-            RoundedRectangle(cornerRadius: 5).foregroundColor(vm.isJoined(task: task) ? .blue : .green)
-            Text(vm.isJoined(task: task) ? "Joined" : "Join")
+            RoundedRectangle(cornerRadius: 5).foregroundColor(taskViewModel.isJoined ? .blue : .green)
+            Text(taskViewModel.isJoined ? "Joined" : "Join")
                 .font(.title2)
             }
         .frame(width: 70, height: 30)
         }
         .padding([.horizontal])
     }
-    
-    private func joinersView(task: Task) -> some View {
+
+    private var joinersView: some View {
         Group {
-            if task.joined.count <= 3 {
-                ForEach(0..<task.joined.count, id:\.self) { index in
+            if taskViewModel.task.joined.count <= 3 {
+                ForEach(0..<taskViewModel.task.joined.count, id:\.self) { index in
                     joinerView
                         .offset(x: Double(-index * 30), y: 0)
                 }
@@ -86,12 +86,12 @@ struct TasksView: View {
                     joinerView
                         .offset(x: Double(-index * 30), y: 0)
                 }
-                Text("\(task.joined.count - 3)")
+                Text("\(taskViewModel.task.joined.count - 3)")
                     .offset(x: Double(-90), y: 0)
             }
         }
     }
-    
+
     private var joinerView: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 50).stroke()
@@ -99,7 +99,7 @@ struct TasksView: View {
         }
         .frame(width: 50, height: 50)
     }
-    
+
     private func taskTypeView(type: Task.TaskType) -> some View {
         if type == .private {
             return HStack {
@@ -123,10 +123,12 @@ struct TasksView: View {
 }
 
 struct TasksView_Previews: PreviewProvider {
-    static let vm = MainViewModel()
+    static let task: Task = Task(id: "abc", text: "abcd", timestamp: Date(), owner: "long7@gmail.com", joined: ["long7@gmail.com"], type: Task.TaskType.open)
+    static let user: User = User(id: "7ABn25Ll3QZvysqlVbVe5IbII8k2", email: "long7@gmail.com", profileImageUrl: "", friends: ["long8@gmail.com"], sent: [], received: [])
     static var previews: some View {
-        TasksView()
-            .environmentObject(vm)
+//        LoginView()
+        TaskView(task: task, user: user)
+//            .environmentObject(vm)
     }
 }
 

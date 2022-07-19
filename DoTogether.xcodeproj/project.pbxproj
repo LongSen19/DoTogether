@@ -30,6 +30,7 @@
 		97C6C338287F74D800A81A95 /* NewTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C6C337287F74D800A81A95 /* NewTaskView.swift */; };
 		97C6C33A287F89D600A81A95 /* FirebaseConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C6C339287F89D600A81A95 /* FirebaseConstants.swift */; };
 		97C6C33C2880CBAE00A81A95 /* TasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C6C33B2880CBAE00A81A95 /* TasksView.swift */; };
+		97EDA3C6288516DA002C7683 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EDA3C5288516DA002C7683 /* TaskViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		97C6C337287F74D800A81A95 /* NewTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTaskView.swift; sourceTree = "<group>"; };
 		97C6C339287F89D600A81A95 /* FirebaseConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseConstants.swift; sourceTree = "<group>"; };
 		97C6C33B2880CBAE00A81A95 /* TasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
+		97EDA3C5288516DA002C7683 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -181,6 +183,7 @@
 				972CB796287547100092152A /* LoginViewModel.swift */,
 				972CB79C28755C6A0092152A /* MainViewModel.swift */,
 				972CB7A32878CB970092152A /* AddFriendViewModel.swift */,
+				97EDA3C5288516DA002C7683 /* TaskViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -344,6 +347,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				97C6C338287F74D800A81A95 /* NewTaskView.swift in Sources */,
+				97EDA3C6288516DA002C7683 /* TaskViewModel.swift in Sources */,
 				97C6C33C2880CBAE00A81A95 /* TasksView.swift in Sources */,
 				972CB7A22878CA9C0092152A /* Users.swift in Sources */,
 				972CB79F2877F97E0092152A /* AddFriendView.swift in Sources */,

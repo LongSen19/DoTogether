@@ -14,10 +14,11 @@ class MainViewModel: ObservableObject {
     @Published var currentUser: User?
     @Published var errorMessage = ""
     @Published var users = [User]()
-    @Published var tasks = [Task]() 
+    @Published var tasks = [Task]()
 
     
     init() {
+        print("init main view model")
         fetchCurrentUser()
 //        fetchMyTasks()
 //        fetchMyFriendTasks()
@@ -47,6 +48,7 @@ class MainViewModel: ObservableObject {
                     self.fetchMyTasks()
                     self.fetchFriendTasks()
                     self.fetchOpenTasks()
+                    self.tasks.sort(by: {$0.timestamp > $1.timestamp})
                 } catch {
                     print("some error \(error)")
                 }
@@ -254,7 +256,7 @@ class MainViewModel: ObservableObject {
                         print("Failed to fetch my task \(error)")
                     }
                 })
-                self.tasks.sort(by: {$0.timestamp > $1.timestamp})
+//                self.tasks.sort(by: {$0.timestamp > $1.timestamp})
             }
     }
     
@@ -285,7 +287,7 @@ class MainViewModel: ObservableObject {
                         print("Failed to fetch my task \(error)")
                     }
                 })
-                self.tasks.sort(by: {$0.timestamp > $1.timestamp})
+//                self.tasks.sort(by: {$0.timestamp > $1.timestamp})
             }
     }
     
@@ -313,81 +315,24 @@ class MainViewModel: ObservableObject {
                         if Set(joined).intersection(currentUser.friends).count >= 1 {
                             self.checkAndAddTask(task)
                         }
-                        print("fetch here some how")
+//                        print("fetch here some how")
 //                        print("all my task \(self.tasks)")
                     } catch {
                         print("Failed to fetch my task \(error)")
                     }
                 })
-                self.tasks.sort(by: {$0.timestamp > $1.timestamp})
+//                self.tasks.sort(by: {$0.timestamp > $1.timestamp})
             }
     }
     
     private func checkAndAddTask(_ task: Task) {
         if !tasks.contains(where: {$0.id == task.id}) {
-            tasks.append(task)
+//            tasks.append(task)
+            tasks.insert(task, at: 0)
         }
     }
     
-    func isMyTask(task: Task) -> Bool {
-        guard let currentUser = currentUser else {
-            return false
-        }
-        return task.owner == currentUser.email
-    }
-    
-    func isJoined(task: Task) -> Bool {
-        guard let currentUser = currentUser else {
-            return false
-        }
-        return task.joined.contains(currentUser.email)
-    }
-    
-    func handleJoin(task: Task) {
-        print("handle Join")
-        guard let currentUser = currentUser else {
-            return
-        }
-        var updatedTask = task
-        if let index = updatedTask.joined.firstIndex(where:{$0 == currentUser.email}) {
-            print("remove")
-            updatedTask.joined.remove(at: index)
-        }
-        else {
-            print("add")
-            updatedTask.joined.append(currentUser.email)
-        }
-        updateTaskToFirestore(task: updatedTask)
-    }
-    
-    func updateTaskLists(task: Task) {
-        if let index = tasks.firstIndex(where: { task.id == $0.id}) {
-            tasks.remove(at: index)
-            tasks.append(task)
-        }
-    }
-    
-    func updateTaskToFirestore(task: Task) {
-        guard let uid = task.id else { return }
-        self.updateTaskLists(task: task)
-        let newTask = [
-            FirebaseConstants.text : task.text,
-            FirebaseConstants.timestamp: task.timestamp,
-            FirebaseConstants.owner: task.owner,
-            FirebaseConstants.joined: task.joined,
-            FirebaseConstants.type: task.type.rawValue] as [String: Any]
-        
-        FirebaseManager.shared.firestore.collection("tasks")
-            .document(uid)
-            .setData(newTask) { error in
-                if let error = error {
-                    self.errorMessage = "Failed to save new task: \(error)"
-                    print("Failed to save new task: \(error)")
-                    return
-                }
-                print("Successfully updated task to firestore")
-            }
-    }
+
     
     func printMyTasks() {
         print("my tasks \(self.tasks)")
