@@ -12,11 +12,12 @@ struct AddFriendView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var search = ""
     @State private var isSearch = false
-    @EnvironmentObject var vm: MainViewModel
+    @ObservedObject var vm: AddFriendViewModel
+//    let didFinishAddFriend: () -> ()
     
-//    init(user: User) {
-//        vm = .init(currentUser: user)
-//    }
+    init(user: User?) {
+        vm = .init(currentUser: user)
+    }
     
     var body: some View {
         VStack {
@@ -184,6 +185,7 @@ struct AddFriendView: View {
                 .foregroundColor(Color(.init(white: 1, alpha: 0.15)))
             Button {
                 presentationMode.wrappedValue.dismiss()
+//                self.didFinishAddFriend()
             } label: {
                 Text("Done")
                     .foregroundColor(.blue)
@@ -205,7 +207,8 @@ struct AddFriendView: View {
 
 struct FriendsView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView()
+        AddFriendView(user: nil)
+//        MainView()
 //            .preferredColorScheme(.dark)
     }
 }

@@ -15,7 +15,11 @@ class LoginViewModel: ObservableObject {
     @Published var loggedIn = false
     
     init() {
-        
+      print("init Login View Model")
+    }
+    
+    deinit {
+        print("deinit Login View Model")
     }
     
     func handleAction(email: String, passwod: String) {
@@ -57,7 +61,7 @@ class LoginViewModel: ObservableObject {
         }
     }
     
-    private func storeUserInformation(email: String, password: String){
+    private func storeUserInformation(email: String, password: String) {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
         let userData = ["email": email, "uid": uid, "profileImageUrl": "", "friends": [], "sent": [], "received": []] as [String : Any]
         FirebaseManager.shared.firestore.collection("users")

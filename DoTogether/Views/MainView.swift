@@ -48,14 +48,14 @@ struct MainView: View {
                             .font(.title)
                     }
                     dummyView
-//                    tasksView
                     ForEach(0..<vm.tasks.count, id:\.self) { index in
                         TaskView(task: vm.tasks[index], user: vm.currentUser)
+                            .padding(.bottom, 20)
                     }
                 }
                 .padding([.horizontal])
-                .fullScreenCover(isPresented: $addFriendView,onDismiss: nil) {
-                    AddFriendView()
+                .sheet(isPresented: $addFriendView,onDismiss: nil) {
+                    AddFriendView(user: vm.currentUser)
                 }
             }
             .onTapGesture {
@@ -203,8 +203,8 @@ struct MainView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-//        MainView()
-        LoginView()
-            .preferredColorScheme(.dark)
+        MainView()
+//        LoginView()
+//            .preferredColorScheme(.dark)
     }
 }

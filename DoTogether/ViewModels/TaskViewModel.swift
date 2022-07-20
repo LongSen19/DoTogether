@@ -97,4 +97,8 @@ class TaskViewModel: ObservableObject {
                 print("Successfully updated task to firestore")
             }
     }
+    
+    func completeTask() {
+        print("complete task: \(task.text)")
+    }
 }
