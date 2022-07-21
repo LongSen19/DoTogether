@@ -15,8 +15,8 @@ class TaskViewModel: ObservableObject {
     
     init(task: Task, user: User?) {
         print("init task view model")
-        self.currentUser = user
         self.task = task
+        self.currentUser = user
         if let uid = task.id {
             fetchTask(uid: uid)
         }
@@ -37,14 +37,14 @@ class TaskViewModel: ObservableObject {
                     print("Failed to fetch my current task \(error)")
                     return
                 }
-                do {
-                    let aTask: Task? = try querySnapshot?.data(as: Task.self)
-                    if let aTask = aTask {
-                        self.task = aTask
+                    do {
+                        let aTask: Task? = try querySnapshot?.data(as: Task.self)
+                        if let aTask = aTask {
+                            self.task = aTask
+                        }
+                    } catch {
+                        print("some error when fetching a task why \(error)")
                     }
-                } catch {
-                    print("some error when fetching a task \(error)")
-                }
             }
     }
     
@@ -59,6 +59,7 @@ class TaskViewModel: ObservableObject {
         guard let currentUser = currentUser else {
             return false
         }
+
         return task.joined.contains(currentUser.email)
     }
     
@@ -96,9 +97,5 @@ class TaskViewModel: ObservableObject {
                 }
                 print("Successfully updated task to firestore")
             }
-    }
-    
-    func completeTask() {
-        print("complete task: \(task.text)")
     }
 }

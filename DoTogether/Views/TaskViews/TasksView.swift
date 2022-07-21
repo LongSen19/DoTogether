@@ -9,13 +9,15 @@ import SwiftUI
 
 struct TaskView: View {
     
+    @EnvironmentObject var mainViewModel: MainViewModel
     @ObservedObject var taskViewModel: TaskViewModel
     @State private var offsetWidth: CGFloat = 0
     //    @State private var isDelete = false
     
     init(task: Task, user: User?) {
+        print("init view")
         self.taskViewModel = .init(task: task, user: user)
-        //        _taskViewModel = StateObject(wrappedValue: TaskViewModel(task: task, user: user))
+//        _taskViewModel = StateObject(wrappedValue: TaskViewModel(taskID: taskID, user: user))
     }
     
     var body: some View {
@@ -76,16 +78,18 @@ struct TaskView: View {
                         taskViewModel.handleJoin()
                     }
             }
-            VStack(alignment: .leading) {
-                Text(taskViewModel.task.text)
-                    .padding(.top,10)
+            if let task = taskViewModel.task {
+                VStack(alignment: .leading) {
+                    Text(task.text)
+                        .padding(.top,10)
+                        .padding()
+                    HStack {
+                        joinersView
+                        Spacer()
+                        taskTypeView(type: task.type)
+                    }
                     .padding()
-                HStack {
-                    joinersView
-                    Spacer()
-                    taskTypeView(type: taskViewModel.task.type)
                 }
-                .padding()
             }
         }
     }
@@ -95,6 +99,7 @@ struct TaskView: View {
             withAnimation {
                 self.offsetWidth = 0
                 self.isDelete = false
+                self.mainViewModel.delete(a: self.taskViewModel.task)
             }
         } label: {
             ZStack {
@@ -113,8 +118,8 @@ struct TaskView: View {
             withAnimation {
                 self.offsetWidth = 0
                 self.isDelete = false
-                self.taskViewModel.completeTask()
-            }
+                self.mainViewModel.complete(a: self.taskViewModel.task)
+                    }
         } label: {
             ZStack {
                 Rectangle()
@@ -201,10 +206,11 @@ struct TaskView: View {
 struct TasksView_Previews: PreviewProvider {
     static let task: Task = Task(id: "abc", text: "abcd", timestamp: Date(), owner: "long7@gmail.com", joined: ["long7@gmail.com"], type: Task.TaskType.open)
     static let user: User = User(id: "7ABn25Ll3QZvysqlVbVe5IbII8k2", email: "long7@gmail.com", profileImageUrl: "", friends: ["long8@gmail.com"], sent: [], received: [])
+    static let vm = MainViewModel()
     static var previews: some View {
         //        LoginView()
         TaskView(task: task, user: user)
-        //            .environmentObject(vm)
+                    .environmentObject(vm)
     }
 }
 

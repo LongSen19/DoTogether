@@ -10,7 +10,7 @@ import Foundation
 
 class LoginViewModel: ObservableObject {
     
-    @Published var isLoginMode = false
+    @Published var isLoginMode = true
     @Published var statusMessage = ""
     @Published var loggedIn = false
     

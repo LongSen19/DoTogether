@@ -10,7 +10,6 @@ import SwiftUI
 struct LoginView: View {
     
     @ObservedObject var vm = LoginViewModel()
-    @State private var isLoginMode = false
     @State private var email = ""
     @State private var password = ""
     @State var shouldShowImagePicker = false
@@ -26,7 +25,7 @@ struct LoginView: View {
                         Text("Create Account")
                             .tag(false)
                     }.pickerStyle(SegmentedPickerStyle())
-                    if !isLoginMode {
+                    if !vm.isLoginMode {
                         Button {
                             shouldShowImagePicker.toggle()
                         } label: {
@@ -63,7 +62,7 @@ struct LoginView: View {
                     } label: {
                         HStack {
                             Spacer()
-                            Text(isLoginMode ? "Log In" : "Create Account")
+                            Text(vm.isLoginMode ? "Log In" : "Create Account")
                                 .foregroundColor(.white)
                                 .padding(.vertical, 10)
                                 .font(.system(size: 14, weight: .semibold))
@@ -78,7 +77,7 @@ struct LoginView: View {
                 .padding()
                 
             }
-            .navigationTitle(isLoginMode ? "Log In" : "Create Account")
+            .navigationTitle(vm.isLoginMode ? "Log In" : "Create Account")
             .background(Color(.init(white: 0, alpha: 0.05))
                             .ignoresSafeArea())
         }

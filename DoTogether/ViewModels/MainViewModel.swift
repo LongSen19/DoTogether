@@ -15,6 +15,8 @@ class MainViewModel: ObservableObject {
     @Published var errorMessage = ""
     @Published var users = [User]()
     @Published var tasks = [Task]()
+    @Published var completedTasks = [Task]()
+    @Published var deletedTasks = [Task]()
 
     
     init() {
@@ -300,18 +302,28 @@ class MainViewModel: ObservableObject {
                     print("Failed to fetch my task \(error)")
                     return
                 }
-                querySnapshot?.documents.forEach({ documentSnapshot in
-                    do {
-                        let task = try documentSnapshot.data(as: Task.self)
-                        self.checkAndAddTask(task)
-//                        print("all my task \(self.tasks)")
-                    } catch {
-                        print("Failed to fetch my task \(error)")
+                querySnapshot?.documentChanges.forEach({ change in
+                    if change.type == .added {
+                        do {
+                            let task = try change.document.data(as: Task.self)
+                            self.checkAndAddTask(task)
+                        } catch {
+                            print("Failed to fetch my task \(error)")
+                        }
+                    }
+                    if change.type == .removed {
+                        do {
+                            let task = try change.document.data(as: Task.self)
+                            self.delete(a: task)
+                        } catch {
+                            print("Failed to fetch my task \(error)")
+                        }
                     }
                 })
 //                self.tasks.sort(by: {$0.timestamp > $1.timestamp})
             }
     }
+    
     
     private var openTasksFirestoreListener: ListenerRegistration?
     
@@ -330,17 +342,37 @@ class MainViewModel: ObservableObject {
                     print("Failed to fetch my task \(error)")
                     return
                 }
-                querySnapshot?.documents.forEach({ documentSnapshot in
-                    do {
-                        let task = try documentSnapshot.data(as: Task.self)
-                        let joined = task.joined
-                        if Set(joined).intersection(currentUser.friends).count >= 1 {
-                            self.checkAndAddTask(task)
+                querySnapshot?.documentChanges.forEach({ change in
+                    if change.type == .added {
+                        do {
+                            let task = try change.document.data(as: Task.self)
+                            let joined = task.joined
+                            if Set(joined).intersection(currentUser.friends).count >= 1 {
+                                self.checkAndAddTask(task)
+                            }
+                        } catch {
+                            print("Failed to fetch my task \(error)")
                         }
-//                        print("fetch here some how")
-//                        print("all my task \(self.tasks)")
-                    } catch {
-                        print("Failed to fetch my task \(error)")
+                    }
+                    if change.type == .modified {
+                        do {
+                            let task = try change.document.data(as: Task.self)
+                            let joined = task.joined
+                            if Set(joined).intersection(currentUser.friends).count >= 1 {
+                                self.modifyTask(task)
+                            }
+                        } catch {
+                            print("Failed to fetch my task \(error)")
+                        }
+
+                    }
+                    if change.type == .removed {
+                        do {
+                            let task = try change.document.data(as: Task.self)
+                            self.delete(a: task)
+                        } catch {
+                            print("Failed to fetch my task \(error)")
+                        }
                     }
                 })
 //                self.tasks.sort(by: {$0.timestamp > $1.timestamp})
@@ -348,15 +380,71 @@ class MainViewModel: ObservableObject {
     }
     
     private func checkAndAddTask(_ task: Task) {
-        if !tasks.contains(where: {$0.id == task.id}) {
+        if !tasks.contains(where: {$0.id == task.id}), !completedTasks.contains(where: {$0.id == task.id}),!deletedTasks.contains(where: {$0.id == task.id}) {
 //            tasks.append(task)
             tasks.insert(task, at: 0)
+            print("add here")
+        }
+
+    }
+    
+    private func modifyTask(_ task: Task) {
+        if let index = tasks.firstIndex(where: {$0.id == task.id}) {
+                tasks.insert(task, at: index)
+                tasks.remove(at: index + 1)
+                print("modify task")
+        } else {
+            self.checkAndAddTask(task)
         }
     }
     
-
     
     func printMyTasks() {
         print("my tasks \(self.tasks)")
+    }
+    
+    private func removeTaskFromTasks(a task: Task) {
+        if let index = tasks.firstIndex(where: {$0.id == task.id}) {
+            tasks.remove(at: index)
+        }
+    }
+    
+    func complete(a task: Task) {
+        completedTasks.append(task)
+        removeTaskFromTasks(a: task)
+        print("Completed tasks:")
+        for t in completedTasks {
+            print(t.text)
+        }
+    }
+    
+    func delete(a task: Task) {
+        guard let currentUser = currentUser else {
+            return
+        }
+        self.removeTaskFromTasks(a: task)
+        if task.owner == currentUser.email {
+            self.deleteTaskInFirestore(task: task)
+        }
+        else {
+            deletedTasks.append(task)
+        }
+        print("deleted tasks:")
+        for t in deletedTasks {
+            print(t.text)
+        }
+    }
+    
+    func deleteTaskInFirestore(task: Task) {
+        guard let uid = task.id else { return }
+        FirebaseManager.shared.firestore.collection("tasks")
+            .document(uid)
+            .delete { error in
+                if let error = error {
+                    print("Failed to delete a task \(error)")
+                    return
+                }
+                print("Successfully deleted task in firestore")
+            }
     }
 }
