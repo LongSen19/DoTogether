@@ -13,7 +13,7 @@ struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State var shouldShowImagePicker = false
-    
+    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         NavigationView {
@@ -55,10 +55,12 @@ struct LoginView: View {
                         SecureField("Password", text: $password)
                     }
                     .padding(12)
-                    .background(Color.white)
+                    .background(Color.white.opacity(0.5))
                     
                     Button {
                         vm.handleAction(email: email, passwod: password)
+                        email = ""
+                        password = ""
                     } label: {
                         HStack {
                             Spacer()
@@ -189,5 +191,6 @@ struct LoginView: View {
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+            .preferredColorScheme(.dark)
     }
 }

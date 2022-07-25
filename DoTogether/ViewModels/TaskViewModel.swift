@@ -12,6 +12,7 @@ class TaskViewModel: ObservableObject {
     
     @Published var task: Task
     @Published var currentUser: User?
+    @Published var joiners: [User] = []
     
     init(task: Task, user: User?) {
         print("init task view model")
@@ -42,9 +43,30 @@ class TaskViewModel: ObservableObject {
                         if let aTask = aTask {
                             self.task = aTask
                         }
+                        self.fetchJoiners()
                     } catch {
                         print("some error when fetching a task why \(error)")
                     }
+            }
+    }
+    
+    private func fetchJoiners() {
+        joiners.removeAll()
+        FirebaseManager.shared.firestore.collection("users")
+            .whereField("email", in: task.joined)
+            .getDocuments { querySnapshot, error in
+                if let error = error {
+                    print("Fail to fetch a friend \(error)")
+                    return
+                }
+                querySnapshot?.documents.forEach({ document in
+                    do {
+                        let joiner = try document.data(as: User.self)
+                        self.joiners.append(joiner)
+                    } catch {
+                        print("Catch error when fetching friends")
+                    }
+                })
             }
     }
     

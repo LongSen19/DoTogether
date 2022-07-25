@@ -7,13 +7,14 @@
 
 import Foundation
 import Firebase
+import SwiftUI
 
 class MainViewModel: ObservableObject {
     
     @Published var isUserCurrentlyLoggedOut = true
     @Published var currentUser: User?
     @Published var errorMessage = ""
-    @Published var users = [User]()
+    @Published var friends = [User]()
     @Published var tasks = [Task]()
     @Published var completedTasks = [Task]()
     @Published var deletedTasks = [Task]()
@@ -26,27 +27,9 @@ class MainViewModel: ObservableObject {
 //        fetchMyFriendTasks()
     }
     
-//    func fetchCurrentUser() {
-//        print("should get here")
-//        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
-//            self.errorMessage = "Could not find firebase uid"
-//            return
-//        }
-//        FirebaseManager.shared.firestore.collection("users")
-//            .document(uid)
-//            .getDocument { documentSnapshot, error in
-//                if let error = error {
-//                    print("Failed to fetch current user in main view model \(error)")
-//                    return
-//                }
-//                print("fetch current user in main model")
-//                do {
-//                    self.currentUser = try documentSnapshot?.data(as: User.self)
-//                } catch {
-//                    print("Failed here because some error \(error)")
-//                }
-//            }
-//    }
+    deinit {
+        print("deinit MainViewModel")
+    }
     
     private var firestoreListener: ListenerRegistration?
 
@@ -73,15 +56,13 @@ class MainViewModel: ObservableObject {
                     self.fetchFriendTasks()
                     self.fetchOpenTasks()
                     self.tasks.sort(by: {$0.timestamp > $1.timestamp})
+                    self.fetchFriends()
                 } catch {
                     print("some error \(error)")
                 }
             }
     }
 
-    deinit {
-        print("de init")
-    }
 
 //    func isSentRequestUser(_ user: String) -> Bool {
 //        if let currentUser = currentUser {
@@ -232,6 +213,28 @@ class MainViewModel: ObservableObject {
 //                }
 //            }
 //    }
+    
+    func fetchFriends() {
+        guard let myFriends = currentUser?.friends else { return }
+        guard !myFriends.isEmpty else { return }
+        self.friends.removeAll()
+        FirebaseManager.shared.firestore.collection("users")
+            .whereField("email", in: myFriends)
+            .getDocuments { querySnapshot, error in
+                if let error = error {
+                    print("Fail to fetch a friend \(error)")
+                    return
+                }
+                querySnapshot?.documents.forEach({ document in
+                    do {
+                        let friend = try document.data(as: User.self)
+                        self.friends.append(friend)
+                    } catch {
+                        print("Catch error when fetching friends")
+                    }
+                })
+            }
+    }
     
     func storeNewTask(task: String, type: Task.TaskType) {
         guard let currentUser = currentUser else {

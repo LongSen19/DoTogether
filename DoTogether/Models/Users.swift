@@ -29,6 +29,10 @@ struct User: Identifiable, Codable {
 //
 //    }
     
+    var conventionName: String {
+        email.replacingOccurrences(of: "@gmail.com", with: "")
+    }
+    
     mutating func addSent(user: String) {
         sent.append(user)
     }

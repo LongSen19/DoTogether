@@ -157,28 +157,20 @@ struct TaskView: View {
     
     private var joinersView: some View {
         Group {
-            if taskViewModel.task.joined.count <= 3 {
-                ForEach(0..<taskViewModel.task.joined.count, id:\.self) { index in
-                    joinerView
+            if taskViewModel.joiners.count <= 3 {
+                ForEach(0..<taskViewModel.joiners.count, id:\.self) { index in
+                    ImageView(url: taskViewModel.joiners[index].profileImageUrl, in: 50)
                         .offset(x: Double(-index * 30), y: 0)
                 }
             } else {
                 ForEach(0..<3, id:\.self) { index in
-                    joinerView
+                    ImageView(url: taskViewModel.joiners[index].profileImageUrl, in: 50)
                         .offset(x: Double(-index * 30), y: 0)
                 }
-                Text("\(taskViewModel.task.joined.count - 3)")
-                    .offset(x: Double(-90), y: 0)
+                Text("+ \(taskViewModel.joiners.count - 3)")
+                    .offset(x: Double(-60), y: 0)
             }
         }
-    }
-    
-    private var joinerView: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 50).stroke()
-            Image(systemName: "person")
-        }
-        .frame(width: 50, height: 50)
     }
     
     private func taskTypeView(type: Task.TaskType) -> some View {
